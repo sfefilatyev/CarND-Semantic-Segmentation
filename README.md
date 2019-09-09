@@ -48,7 +48,7 @@ The implemented fully convolutional network classifies the road surface well vis
 In order to have persistent results the trained model is always saved in `runs/` directory.
 
 ---------------------------------------------------------------------------------
-## The following sections show Udacity original guidelines for the [project](https://github.com/darienmt/CarND-Semantic-Segmentation-P2)
+## The following sections show Udacity original guidelines for the project.
 
 ### Introduction
 In this project, you'll label the pixels of a road in images using a Fully Convolutional Network (FCN).
