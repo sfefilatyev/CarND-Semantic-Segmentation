@@ -18,8 +18,9 @@ import tensorflow as tf
 from glob import glob
 from urllib.request import urlretrieve
 from tqdm import tqdm
-import numpy as np
-from PIL import Image
+# Uncomment the following if you higher verison of scipy.misc. Following the follow PR: https://github.com/udacity/CarND-Semantic-Segmentation/pull/19
+#import numpy as np
+#from PIL import Image
 
 
 class DLProgress(tqdm):

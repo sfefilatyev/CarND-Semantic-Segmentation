@@ -6,6 +6,8 @@ import warnings
 from distutils.version import LooseVersion
 import project_tests as tests
 
+# Flag to use a trained model for inference instead of training anew.
+USE_SAVED_MODEL = False
 
 # Check TensorFlow Version
 assert LooseVersion(tf.__version__) >= LooseVersion('1.0'), 'Please use TensorFlow version 1.0 or newer.  You are using {}'.format(tf.__version__)
@@ -53,7 +55,7 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :param num_classes: Number of classes to classify
     :return: The Tensor for the last layer of output
     """
-    REGULARIZER_VALUE = 1e-3
+    REGULARIZER_VALUE = 1e-4
     INITIALIZER_VALUE = 1e-2
 
     # 1x1 convolution layer from VGG layer 7 to align on the number of outputs(classes).    
@@ -101,7 +103,7 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
         kernel_regularizer=tf.contrib.layers.l2_regularizer(REGULARIZER_VALUE),
         kernel_initializer=tf.random_normal_initializer(stddev=INITIALIZER_VALUE),
         )
-    #debug_upsample_4X = tf.Print(upsample_16X, [tf.shape(upsample_4X)])
+    #debug_upsample_4X = tf.Print(upsample_4X, [tf.shape(upsample_4X)])
 
     # 1x1 convolution layer from VGG layer 3 to align on the number of outputs(classes).
     layer3_to_conv_1x1 = tf.layers.conv2d(
@@ -146,16 +148,18 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
 
     # Create loss function that accounts for L2 regularizers in conv-kernels.
     cross_entropy_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=correct_label))
-    conv_regularizers = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
-    full_loss = cross_entropy_loss + conv_regularizers
+    # Here I was supposed to use a regularization loss, but I found it not affecting results much. Instead it required
+    # more hyper parameter tuning. Decided to skip.
+    #conv_regularizers = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
+    #full_loss = cross_entropy_loss + conv_regularizers
 
     # Using Adam optimizer as suggested in the project requirements.
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
 
     # Apply optimizer to the loss function.
-    train_op = optimizer.minimize(full_loss)
+    train_op = optimizer.minimize(cross_entropy_loss)
 
-    return logits, train_op, full_loss
+    return logits, train_op, cross_entropy_loss
 tests.test_optimize(optimize)
 
 
@@ -233,15 +237,24 @@ def run():
         # Building optimizer.
         logits, train_op, cross_entropy_loss = optimize(output_layer, correct_label, learning_rate, num_classes)
 
+        # Create saver to save the trained model.
+        saver = tf.train.Saver()
+
         # Unit the following hyperparameters for epochs and batch size.
         epochs = 50
         batch_size = 8
 
-        train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, image_input,
-                 correct_label, keep_prob, learning_rate)
+        # Modify the flag defined on top of the file if you want to just re-used the trained model.
+        if not USE_SAVED_MODEL:
+            train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, image_input,
+                    correct_label, keep_prob, learning_rate)
+        else:
+            # restore a saved model here:
+            saver.restore(sess, './runs/trained_model.ckpt')
  
         helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, image_input)
-
+        # # save model
+        saver.save(sess, './runs/trained_model.ckpt')
         # OPTIONAL: Apply the trained model to a video
 
 
