@@ -18,6 +18,9 @@ import tensorflow as tf
 from glob import glob
 from urllib.request import urlretrieve
 from tqdm import tqdm
+# Uncomment the following if you higher verison of scipy.misc. Following the follow PR: https://github.com/udacity/CarND-Semantic-Segmentation/pull/19
+#import numpy as np
+#from PIL import Image
 
 
 class DLProgress(tqdm):
@@ -107,6 +110,9 @@ def gen_batch_function(data_folder, image_shape):
 				# Re-size to image_shape
 				image = scipy.misc.imresize(scipy.misc.imread(image_file), image_shape)
 				gt_image = scipy.misc.imresize(scipy.misc.imread(gt_image_file), image_shape)
+				# Uncomment the following if you higher verison of scipy.misc. Following the follow PR: https://github.com/udacity/CarND-Semantic-Segmentation/pull/19
+				#image = np.array(Image.open(image_file).resize(image_shape))
+				#gt_image = np.array(Image.open(gt_image_file).resize(image_shape))
 
 				# Create "one-hot-like" labels by class
 				gt_bg = np.all(gt_image == background_color, axis=2)
@@ -133,7 +139,9 @@ def gen_test_output(sess, logits, keep_prob, image_pl, data_folder, image_shape)
 	"""
 	for image_file in glob(os.path.join(data_folder, 'image_2', '*.png')):
 		image = scipy.misc.imresize(scipy.misc.imread(image_file), image_shape)
-
+		# Uncomment the following if you higher verison of scipy.misc. Following the follow PR: https://github.com/udacity/CarND-Semantic-Segmentation/pull/19
+		#image = np.array(Image.open(image_file).resize(image_shape))
+		
 		# Run inference
 		im_softmax = sess.run(
 			[tf.nn.softmax(logits)],
