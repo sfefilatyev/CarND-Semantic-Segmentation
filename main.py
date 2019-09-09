@@ -55,7 +55,7 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     :param num_classes: Number of classes to classify
     :return: The Tensor for the last layer of output
     """
-    REGULARIZER_VALUE = 1e-4
+    REGULARIZER_VALUE = 1e-3
     INITIALIZER_VALUE = 1e-2
 
     # 1x1 convolution layer from VGG layer 7 to align on the number of outputs(classes).    
