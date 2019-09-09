@@ -3,14 +3,14 @@
 
 ## Introduction
 
-In this project, the goal of the perception system is to identify drivable space for the vehicle. To achieve this, the pixels of the road surface in images are labeled into two classes: road and non-road. The labeling is performed by using a Fully Convolutional Network (FCN), that is based on the solution described in the paper [Fully Convolutional Networks for Semantic Segmentation](https://arxiv.org/pdf/1605.06211.pdf).
+In this project, the goal of the vehicle's perception system is to identify drivable space. To achieve this, the pixels of the road surface in images are labeled into two classes: road and non-road. The labeling is performed by using a Fully Convolutional Network (FCN), that is based on the solution described in the paper [Fully Convolutional Networks for Semantic Segmentation](https://arxiv.org/pdf/1605.06211.pdf).
 
 ## Fully Convolutional Network (FCN) Architecture
 
 The following figure shows architecture of the DNN for the fully convolutional network as shown in the original paper.
 ![](FCN_architecture.png)
 
-The FCN is based on encoder-decoder architure. The encoder part of the FCN represents a VGG-16 architecture for image classificaiton. We obtained a pre-trained version of this network with fully-connected layers replaced by 1x1 convolution as input to this project. The proper implemention of the decoder part of the FCN architecture is the main task of this project. In order to impelement the encoder the following layers are used for skip connections:
+The FCN is based on encoder-decoder architecture. The encoder part of the FCN is based on a VGG-16 classification network architecture. We obtained a pre-trained version of this network with fully-connected layers replaced by 1x1 convolution as input to this project. The proper implemention of the decoder part of the FCN architecture is the main task of this project. In order to impelement the encoder the following layers are used as a source for skip connections:
 
 - `layer 3`
 - `layer 4`
@@ -24,27 +24,28 @@ The FCN is based on encoder-decoder architure. The encoder part of the FCN repre
 
 In the project, the upsampling layers have been setup with a kernel initializer and a kernel L-2 regularizer. However, throughout work, I did not find L2-regularization useful, so it is not used in the loss function as suggested in the project review points. I also did not scale 1x1 convolutions coming from layer 3, 4, and 7 of the VGG encoder as was mentioned on the project review task list.
 
-In order to select the best hyper parameters, I created a simple framework, where the network is tested at the end the training on the validation set, the role of which was delegated to the test set provided as part of Kitti. Although it is not the best setup (test should not be used for validation!), it does provide some approximation to the best parameter generilizing the network performance by evaluation its performance on unseen data. The actual selection of the hyperparameters was done manually by training a number of times and observing the accuracy of pixel classificaiton in terms of mean IOU on the test set. The following tables shows the final parameters chosen for submission.
+The actual selection of the hyperparameters was done manually by training a number of times and observing the the loss on the training set. The following tables shows the final parameters chosen for submission.
 
 | Parameter                                |  Value  |
 |------------------------------------------|---------|
-| Learnin rate                             | 0.0001  |
+| Learning rate                            | 0.00001 |
 | Number of epochs                         |   50    |
-| BATCH_SIZE                               |    8    |
-| Kernal intialization standard devication |  0.01   |
-| L2-regularization of convolution kernels | 0.0001  |
-| Keep probability value                   |   0.5   |
-
+| Batch size                               |    8    |
+| Kernal intialization standard deviation  |  0.01   |
+| L2-regularization of convolution kernels | 0.001   |
+| "Keep probability" value                 |   0.5   |
 
 ### Results
 
-The implemented fully convolutional network classifies the road surface well visually and delivers `80%` IOU on the test(validation) dataset. The following imagery shows visualization of classified road surfaces from images of the test set of Kitti:
+The implemented fully convolutional network classifies the road surface well visually. The following imagery shows visualization of classified road surfaces from images of the test set of Kitti:
 
 ![](uu_000001.png)
 ![](uu_000010.png)
 ![](uu_000020.png)
 ![](uu_000024.png)
 ![](umm_000088.png)
+
+In order to have persistent results the trained model is always saved in `runs/` directory.
 
 ---------------------------------------------------------------------------------
 ## The following sections show Udacity original guidelines for the [project](https://github.com/darienmt/CarND-Semantic-Segmentation-P2)
