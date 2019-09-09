@@ -28,7 +28,7 @@ The actual selection of the hyperparameters was done manually by training a numb
 
 | Parameter                                |  Value  |
 |------------------------------------------|---------|
-| Learnin rate                             | 0.0001  |
+| Learning rate                            | 0.00001 |
 | Number of epochs                         |   50    |
 | Batch size                               |    8    |
 | Kernal intialization standard deviation  |  0.01   |
